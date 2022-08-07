@@ -1,0 +1,249 @@
+import 'dart:io';
+
+import 'package:citjo/screens/feed_screen.dart';
+import 'package:citjo/theme.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+
+import 'login_screen.dart';
+
+class EditProfileCopyR extends StatefulWidget {
+  static const String id = 'EditProfile';
+
+  const EditProfileCopyR({Key? key}) : super(key: key);
+
+  @override
+  State<EditProfileCopyR> createState() => _EditProfileCopyRState();
+}
+
+class _EditProfileCopyRState extends State<EditProfileCopyR> {
+  File? _image;
+  final picker = ImagePicker();
+
+  Future getImageFromCamera() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+
+    setState(() {
+      if (pickedFile != null) {
+        _image = File(pickedFile.path);
+      }
+    });
+  }
+
+  Future getImageFromGallery() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    setState(() {
+      if (pickedFile != null) {
+        _image = File(pickedFile.path);
+      }
+    });
+  }
+
+  Future<void> showOptionsDialog(BuildContext context) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Options"),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: [
+                  GestureDetector(
+                    child: Text("Open Camera"),
+                    onTap: () {
+                      getImageFromCamera();
+                    },
+                  ),
+                  Padding(padding: EdgeInsets.all(10)),
+                  GestureDetector(
+                    child: Text("Open Gallery"),
+                    onTap: () {
+                      getImageFromGallery();
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+        title: Align(
+          alignment: Alignment.topLeft,
+          child: Text("Edit Profile",
+              style: Theme.of(context)
+                  .textTheme
+                  .headlineLarge
+                  ?.merge(TextStyle(color: AppColors.black))),
+        ),
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: AppColors.black,
+          ),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Stack(
+            children: [
+              Column(
+                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(
+                    height: 100,
+                    width: 100,
+                    child: Stack(
+                        fit: StackFit.expand,
+                        clipBehavior: Clip.none,
+                        children: [
+                          (_image != null)
+                              ? CircleAvatar(
+                                  radius: 50,
+                                  backgroundColor: Colors.transparent,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(300.0),
+                                    child: Image.file(_image!),
+                                  ),
+                                )
+                              : CircleAvatar(
+                                  radius: 50,
+                                  backgroundImage: NetworkImage(
+                                    "https://images.unsplash.com/photo-1498529605908-f357a9af7bf5?ixlib=rb-0.3.5&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&s=047fade70e80ebb22ac8f09c04872c40",
+                                  ),
+                                  backgroundColor: Colors.transparent,
+                                ),
+                          Positioned(
+                            right: -13,
+                            bottom: 0,
+                            child: ClipOval(
+                              child: Container(
+                                height: 35,
+                                width: 35,
+                                color: Colors.white,
+                                child: Center(
+                                  child: IconButton(
+                                    icon: Icon(
+                                      Icons.edit,
+                                      size: 18,
+                                    ),
+                                    color: AppColors.secondary,
+                                    onPressed: () {
+                                      showOptionsDialog(context);
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ]),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Name',
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineLarge
+                                ?.merge(TextStyle(color: AppColors.black)),
+                          ),
+                          TextField(
+                            keyboardType: TextInputType.name,
+                            decoration: InputDecoration(
+                              hintText: 'Rajshree Dubey',
+                            ),
+                          ),
+                        ]),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Bio ',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineLarge
+                              ?.merge(TextStyle(color: AppColors.black)),
+                        ),
+                        TextField(
+                          keyboardType: TextInputType.multiline,
+                          minLines: 1,
+                          maxLines: 5,
+                          decoration: InputDecoration(
+                            hintText:
+                                'Journalist living in Bombay, Awarded by journalist of the year, Publicist at Samna',
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: 30),
+                          child: MaterialButton(
+                            height: 42,
+                            minWidth: MediaQuery.of(context).size.width,
+                            color: AppColors.greyLight,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              'Apply for verification',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineLarge
+                                  ?.merge(
+                                    TextStyle(color: AppColors.black),
+                                  ),
+                            ),
+                            onPressed: () {
+                              Navigator.of(context)
+                                  .pushNamed(VerifyJournalist.id);
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: MaterialButton(
+                  onPressed: () {},
+                  height: 42,
+                  minWidth: MediaQuery.of(context).size.width,
+                  color: AppColors.primary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    'Save',
+                    style: Theme.of(context).textTheme.headlineLarge?.merge(
+                          TextStyle(color: AppColors.white),
+                        ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
